@@ -1,8 +1,37 @@
 import streamlit as st
 import time
 
-# Configuração da página oficial com título e ícone do pneu
+# Configuração da página oficial
 st.set_page_config(page_title="EIXO'S GPS - Oficial", page_icon="🛞", layout="centered")
+
+# Força o fundo amarelo tráfego e texto preto oficial do EIXO'S em qualquer celular ou PC
+st.html("""
+    <style>
+    .stApp {
+        background-color: #FFCC00 !important;
+        color: #000000 !important;
+    }
+    h1, h2, h3, p, span, label, li, div, select, input {
+        color: #000000 !important;
+        font-family: 'Arial Black', sans-serif !important;
+    }
+    .stButton>button {
+        background-color: #000000 !important;
+        color: #FFCC00 !important;
+        border-radius: 10px !important;
+        border: 2px solid #000000 !important;
+        font-weight: bold !important;
+    }
+    div[data-baseweb="select"] > div {
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
+    }
+    div[data-baseweb="input"] > input {
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
+    }
+    </style>
+""")
 
 # Inicialização segura dos estados do aplicativo
 if 'vip_ativo' not in st.session_state:
@@ -33,7 +62,6 @@ elif st.session_state.tela_atual == "mapa":
     st.title("🗺️ Mapa de Rodagem Nacional")
     st.info("🚚 ROTA ATIVA: Rotas de Carga pesada calculadas para todo o Brasil.")
     
-    # Simulação dos comandos de voz inteligentes
     st.markdown("### 🎙️ Comando de Voz Ativo (Simule sua fala):")
     col1, col2, col3 = st.columns(3)
     
@@ -55,7 +83,6 @@ elif st.session_state.tela_atual == "mapa":
 
     st.markdown("---")
     
-    # Espaço da Monetização VIP
     if not st.session_state.vip_ativo:
         st.subheader("🛡️ CENTRAL DO MOTORISTA VIP")
         st.write("Monitore áreas de assalto, ative o Botão de Pânico por Voz e libere a Rádio PX Digital com os colegas da estrada.")
