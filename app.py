@@ -1,8 +1,10 @@
 import streamlit as st
 import pandas as pd
 import time
+import folium
+from streamlit_folium import st_folium
 
-# Configuração oficial da página
+# Configuração oficial da página em modo estendido para o mapa ficar gigante
 st.set_page_config(page_title="EIXO'S GPS - Oficial", page_icon="🛞", layout="wide")
 
 # Inicialização segura dos estados do aplicativo
@@ -23,68 +25,78 @@ if st.session_state.tela_atual == "config":
     peso = st.number_input("Peso Total Bruto (PBT em Toneladas)", min_value=2, max_value=100, value=45)
     
     st.markdown("---")
-    if st.button("🛞 INICIAR VIAGEM (MODO NAVEGAÇÃO W-TRUCK)"):
-        with st.spinner("Iniciando GPS e traçando rota segura para veículos pesados..."):
+    if st.button("🛞 INICIAR NAVEGAÇÃO EM TEMPO REAL"):
+        with st.spinner("Conectando ao satélite e traçando rota padrão Google Maps..."):
             time.sleep(1.5)
         st.session_state.tela_atual = "mapa"
         st.rerun()
 
-# --- TELA 2: INTERFACE DE NAVEGAÇÃO COMPATÍVEL COM WAZE ---
+# --- TELA 2: INTERFACE ESTILO GOOGLE MAPS ---
 elif st.session_state.tela_atual == "mapa":
     
-    # -------------------------------------------------------------
-    # PAINEL SUPERIOR DO WAZE (Próxima Manobra)
-    # -------------------------------------------------------------
-    st.success("⬅️ EM 500 METRES: Mantenha-se à esquerda na bifurcação em direção a São Paulo (BR-116)")
+    # Painel superior verde de navegação clássico do Google Maps
+    st.success("🟢 BR-116 - Rodovia Régis Bittencourt | Rota de Carga Pesada Liberada | Siga em frente por 120 km")
     
-    # Divisão de tela para simular o painel do motorista
+    # Divisão de tela: Esquerda Mapa Gigante / Direita Controles do Motorista
     col_mapa, col_painel = st.columns([2, 1])
     
     with col_mapa:
-        st.markdown("### 🗺️ Navegação GPS Ativa")
+        st.markdown("### 🗺️ Linha de Rota e Trajeto Ativo (Google Maps Style)")
         
-        # Coordenadas em tempo real simulando o trajeto na rodovia
-        coordenadas_waze = pd.DataFrame({
-            'latitude': [-25.4284, -25.3500, -25.2000, -25.1000],
-            'longitude': [-49.2733, -49.1500, -48.9500, -48.8000]
-        })
+        # Criando o mapa real centralizado na rodovia entre Curitiba e SP
+        m = folium.Map(location=[-24.5000, -48.5000], zoom_start=8, tiles="OpenStreetMap")
         
-        # Renderiza o mapa ocupando a tela principal do motorista
-        st.map(coordenadas_waze, zoom=10)
+        # Coordenadas que traçam a linha azul do caminho a seguir na estrada
+        coordenadas_linha = [
+            [-25.4284, -49.2733], # Curitiba
+            [-24.7123, -47.8542], # Registro
+            [-24.5200, -47.7500], # Ponto do Radar
+            [-23.5505, -46.6333]  # São Paulo
+        ]
         
-        # HUD Inferior do Waze (Velocímetro e Tempo)
-        st.metric(label="Velocidade Atual (BR-116)", value="80 km/h", delta="Laranja: Radar a 1km", delta_color="inverse")
+        # Desenha a linha azul clássica do Google Maps indicando o caminho
+        folium.PolyLine(coordenadas_linha, color="blue", weight=6, opacity=0.8, tooltip="Rota Principal EIXO'S").add_to(m)
+        
+        # Adiciona marcadores interativos com alertas na rodovia
+        folium.Marker([-25.4284, -49.2733], popup="Origem: Curitiba", icon=folium.Icon(color="green", icon="play")).add_to(m)
+        folium.Marker([-24.5200, -47.7500], popup="⚠️ ALERTA: Radar de Velocidade 80km/h", icon=folium.Icon(color="red", icon="flash")).add_to(m)
+        folium.Marker([-24.7123, -47.8542], popup="⛽ Posto Graal: Benefício VIP Disponível!", icon=folium.Icon(color="orange", icon="star")).add_to(m)
+        folium.Marker([-23.5505, -46.6333], popup="Destino: São Paulo", icon=folium.Icon(color="blue", icon="flag")).add_to(m)
+        
+        # Renderiza o mapa interativo na tela
+        st_folium(m, width=700, height=450)
+        
+        # Painel inferior de telemetria do motorista
+        st.metric(label="Velocímetro Digital", value="80 km/h", delta="Velocidade Ideal para o Trecho", delta_color="normal")
         
     with col_painel:
-        st.markdown("### 🎙️ Copiloto EIXO'S")
-        
-        # Alertas baseados em voz comunitária
+        st.markdown("### 🎙️ Painel de Controle e Voz")
         st.info("📻 CANAL ATIVO: BR-116 Trecho SP | 142 Colegas Online")
         
         if st.button("💬 'EIXO, BORRACHEIRO'"):
-            st.warning("🔊 Borracharia do Gaúcho detectada a 4km. Atendimento pesado.")
+            st.warning("🔊 Copiloto: 'Borracharia do Gaúcho detectada no KM 440 da BR-116. Deseja traçar rota alternativa?'")
             
         if st.button("💬 'EIXO, AUXÍLIO MECÂNICO'"):
-            st.warning("🔊 Oficina Diesel Irmãos Silva a 12km. Pista livre.")
+            st.warning("🔊 Copiloto: 'Mecânica Diesel Irmãos Silva a 12km de distância na pista da direita.'")
             
         st.markdown("---")
         
         # Central VIP e Cupons de Desconto de Parada
         if not st.session_state.vip_ativo:
-            st.markdown("#### 🛡️ MODO SEGURO VIP")
-            st.write("Libere alertas de assalto e ganhe benefícios nas paradas.")
+            st.subheader("🛡️ MODO SEGURO VIP")
+            st.write("Monitore roubo de carga e ganhe duchas grátis nas paradas do caminho para SP.")
             if st.button("⚡ ATIVAR VIP VIA PIX (R$ 49,99)"):
                 st.session_state.vip_ativo = True
-                st.success("Plano VIP ativo! Recursos de segurança liberados.")
+                st.success("Plano VIP ativo! Rádio PX e Cupons liberados!")
                 time.sleep(1)
                 st.rerun()
         else:
-            st.success("🟩 MODO VIP PROTEGIDO")
-            if st.button("🎫 PEGAR CUPOM DUCHA GRÁTIS"):
+            st.success("🟩 MODO VIP ATIVO E PROTEGIDO")
+            if st.button("🎫 VER MEU CUPOM DUCHA GRÁTIS"):
                 st.session_state.tela_atual = "cupom"
                 st.rerun()
                 
-        if st.button("🔙 Encerrar Viagem"):
+        if st.button("🔙 Encerrar Viagem / Menu"):
             st.session_state.tela_atual = "config"
             st.rerun()
 
