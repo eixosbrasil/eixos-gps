@@ -1,37 +1,9 @@
 import streamlit as st
+import pandas as pd
 import time
 
 # Configuração da página oficial
 st.set_page_config(page_title="EIXO'S GPS - Oficial", page_icon="🛞", layout="centered")
-
-# Força o fundo amarelo tráfego e texto preto oficial do EIXO'S em qualquer celular ou PC
-st.html("""
-    <style>
-    .stApp {
-        background-color: #FFCC00 !important;
-        color: #000000 !important;
-    }
-    h1, h2, h3, p, span, label, li, div, select, input {
-        color: #000000 !important;
-        font-family: 'Arial Black', sans-serif !important;
-    }
-    .stButton>button {
-        background-color: #000000 !important;
-        color: #FFCC00 !important;
-        border-radius: 10px !important;
-        border: 2px solid #000000 !important;
-        font-weight: bold !important;
-    }
-    div[data-baseweb="select"] > div {
-        background-color: #FFFFFF !important;
-        color: #000000 !important;
-    }
-    div[data-baseweb="input"] > input {
-        background-color: #FFFFFF !important;
-        color: #000000 !important;
-    }
-    </style>
-""")
 
 # Inicialização segura dos estados do aplicativo
 if 'vip_ativo' not in st.session_state:
@@ -57,21 +29,47 @@ if st.session_state.tela_atual == "config":
         st.session_state.tela_atual = "mapa"
         st.rerun()
 
-# --- TELA 2: INTERFACE DO MAPA SIMULADO ---
+# --- TELA 2: INTERFACE DO MAPA REAL ---
 elif st.session_state.tela_atual == "mapa":
-    st.title("🗺️ Mapa de Rodagem Nacional")
-    st.info("🚚 ROTA ATIVA: Rotas de Carga pesada calculadas para todo o Brasil.")
+    st.title("🗺️ Mapa de Rodagem em Tempo Real")
+    st.info("🚚 ROTA ATIVA: Curitiba (PR) ➡️ São Paulo (SP) via BR-116 (Régis Bittencourt)")
     
+    # -------------------------------------------------------------
+    # MAPA REAL INTEGRADO (Plotando pontos reais na BR-116)
+    # -------------------------------------------------------------
+    st.markdown("### 🗺️ Rota Comercial Ativa e Pontos de Apoio:")
+    
+    # Coordenadas reais de pontos na rota Curitiba - SP para desenhar no mapa
+    dados_mapa = pd.DataFrame({
+        'latitude': [
+            -25.4284,  # Origem: Curitiba
+            -24.7123,  # Ponto de Apoio: Registro (BR-116)
+            -24.5200,  # Balança Obrigatória Ativa
+            -23.5505   # Destino: São Paulo
+        ],
+        'longitude': [
+            -49.2733,  # Curitiba
+            -47.8542,  # Registro
+            -47.7500,  # Balança
+            -46.6333   # São Paulo
+        ]
+    })
+    
+    # Desenha o mapa interativo na tela do celular/PC
+    st.map(dados_mapa)
+    st.caption("ℹ️ Dê zoom ou arraste o mapa acima para ver o trajeto real da BR-116.")
+    
+    # Simulação dos comandos de voz inteligentes
     st.markdown("### 🎙️ Comando de Voz Ativo (Simule sua fala):")
     col1, col2, col3 = st.columns(3)
     
     with col1:
         if st.button("💬 'EIXO, BORRACHEIRO'"):
-            st.warning("🔊 Copiloto: 'Borracharia do Gaúcho a 4km na BR-116. Atendimento Móvel Grátis pelo app. Deseja ligar?'")
+            st.warning("🔊 Copiloto: 'Borracharia do Gaúcho localizada no km 450 da BR-116 (Registro). Atendimento Móvel Grátis pelo app. Deseja ligar?'")
                 
     with col2:
         if st.button("💬 'EIXO, AUXÍLIO MECÂNICO'"):
-            st.warning("🔊 Copiloto: 'Oficina Diesel Irmãos Silva a 12km. Socorro mecânico na pista cadastrado 100% Grátis.'")
+            st.warning("🔊 Copiloto: 'Oficina Diesel Irmãos Silva detectada próxima à praça de pedágio. Socorro mecânico grátis na pista.'")
             
     with col3:
         if st.button("💬 'EIXO, GERAR CUPOM'"):
@@ -83,20 +81,21 @@ elif st.session_state.tela_atual == "mapa":
 
     st.markdown("---")
     
+    # Espaço da Monetização VIP
     if not st.session_state.vip_ativo:
         st.subheader("🛡️ CENTRAL DO MOTORISTA VIP")
-        st.write("Monitore áreas de assalto, ative o Botão de Pânico por Voz e libere a Rádio PX Digital com os colegas da estrada.")
+        st.write("Monitore áreas de assalto na Régis, ative o Botão de Pânico e libere a Rádio PX Digital com os colegas de SP.")
         st.write("• **Plano Mensal:** R$ 4,99/mês")
         st.write("• **Plano Anual:** R$ 49,99/ano (🔥 GANHE 2 MESES GRÁTIS)")
         
         if st.button("⚡ ATIVAR PLANO ANUAL VIA PIX (R$ 49,99)"):
             st.session_state.vip_ativo = True
-            st.success("🔊 Copiloto: 'Parabéns, colega! Plano VIP ativo. Rádio PX e Botão de Pânico liberados!'")
-            time.sleep(2)
+            st.success("🔊 Copiloto: 'Parabéns, colega! Plano VIP ativo. Rádio PX e cupons liberados para o trecho de SP!'")
+            time.sleep(1.5)
             st.rerun()
     else:
-        st.success("🟩 MODO VIP ATIVO: Você está protegido com o Botão de Pânico e Rádio PX Nacional.")
-        if st.button("🎫 VER MEU CUPOM DE DESCONTO VIP (Posto Graal)"):
+        st.success("🟩 MODO VIP ATIVO: Você está protegido no eixo Curitiba - SP.")
+        if st.button("🎫 VER MEU CUPOM DE DESCONTO VIP (Posto Graal SP)"):
             st.session_state.tela_atual = "cupom"
             st.rerun()
             
@@ -107,34 +106,23 @@ elif st.session_state.tela_atual == "mapa":
             st.session_state.tela_atual = "config"
             st.rerun()
     with col_cad:
-        if st.button("🛠️ Cadastrar Oficina/Borracharia"):
+        if st.button("🛠️ Cadastrar Oficina"):
             st.session_state.tela_atual = "cadastro_parceiro"
             st.rerun()
 
-# --- TELA 3: CADASTRO GRATUITO DE PARCEIROS DE ESTRADA ---
+# --- TELA 3: CADASTRO GRATUITO ---
 elif st.session_state.tela_atual == "cadastro_parceiro":
     st.title("🛠️ Portal do Parceiro de Estrada")
-    st.subheader("Cadastre seu serviço de graça no maior mapa do Brasil")
-    st.write("Consiga mais clientes e atenda caminhoneiros na rodovia. É 100% gratuito!")
+    st.subheader("Cadastre seu serviço de graça no mapa da BR-116")
     
-    nome_oficina = st.text_input("Nome da Borracharia ou Oficina", "Ex: Borracharia do Gaúcho")
+    nome_oficina = st.text_input("Nome da Borracharia ou Oficina", "Ex: Mecânica Diesel SP")
     whats_oficina = st.text_input("WhatsApp de Atendimento", "Ex: (11) 99999-9999")
-    
-    st.write("Selecione suas Especialidades:")
-    st.checkbox("Borracharia / Pneus de Linha Pesada")
+    st.checkbox("Borracharia de Linha Pesada")
     st.checkbox("Mecânica Geral Diesel")
-    st.checkbox("Auto Elétrico / Injeção Eletrônica")
-    st.checkbox("Guincho Pesado / Reboque")
     
-    st.write("Horário de Funcionamento:")
-    st.radio("Disponibilidade", ["Atendimento 24 Horas", "Horário Comercial"])
-    
-    if st.button("📍 CAPTURAR MINHA LOCALIZAÇÃO ATUAL VIA GPS"):
-        st.info("Coordenadas capturadas com sucesso! Seu ponto está fixado na rodovia.")
-        
     if st.button("🔥 FICAR VISÍVEL NO MAPA NACIONAL AGORA"):
-        st.success("🔊 Sistema: 'Cadastro concluído! Obrigado por ajudar a manter o Brasil rodando com segurança!'")
-        time.sleep(2)
+        st.success("🔊 Sistema: 'Cadastro concluído! Seu ponto de socorro já aparece na rota para SP!'")
+        time.sleep(1.5)
         st.session_state.tela_atual = "mapa"
         st.rerun()
         
@@ -145,15 +133,15 @@ elif st.session_state.tela_atual == "cadastro_parceiro":
 # --- TELA 4: TELA DO CUPOM DE DESCONTO ---
 elif st.session_state.tela_atual == "cupom":
     st.title("🎫 SEU CUPOM EXCLUSIVO EIXO'S VIP")
-    st.subheader("Apresente o código no caixa do posto para receber o benefício")
+    st.subheader("Apresente o código no caixa do posto em SP")
     
-    st.code("# EIXO-7729", language="text")
-    st.write("**POSTO PARCEIRO:** REDE GRAAL - Rodovia Presidente Dutra KM 22")
+    st.code("# EIXO-SP116", language="text")
+    st.write("**POSTO PARCEIRO:** REDE GRAAL - Rodovia Régis Bittencourt KM 440")
     st.write("### ✅ BENEFÍCIOS VALIDADOS NO SEU PLANO:")
     st.write("- 🚿 Ducha Quente TOTALMENTE GRÁTIS")
     st.write("- ☕ 1 Café Expresso Cortesia da Casa")
     st.write("- 💰 R$ 0,10 de Desconto por Litro no Diesel S10")
-    st.write("⏳ *Este cupom expira em 42 minutos. Aproveite o descanso, colega!*")
+    st.write("⏳ *Este cupom expira em 42 minutos. Aproveite o descanso na chegada a SP, colega!*")
     
     if st.button("🗺️ VOLTAR PARA O MAPA"):
         st.session_state.tela_atual = "mapa"
